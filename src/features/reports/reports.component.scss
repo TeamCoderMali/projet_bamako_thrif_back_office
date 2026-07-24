@@ -1,0 +1,181 @@
+// ─── Reports / Statistics Page — Premium ──────────────────────────────────────
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+// ── Chart Cards ───────────────────────────────────────────────────────────────
+.chart-card {
+  background: var(--card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s;
+  &:hover { box-shadow: var(--shadow-md); }
+}
+.chart-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+
+  .material-icons { font-size: 18px !important; color: var(--color-primary); }
+
+  &::before {
+    content: '';
+    width: 3px; height: 15px;
+    background: var(--color-primary);
+    border-radius: 2px;
+  }
+}
+
+// ── Bar Chart ─────────────────────────────────────────────────────────────────
+.bar-chart { display: flex; flex-direction: column; gap: 12px; }
+.bar-row { display: flex; align-items: center; gap: 12px; }
+.bar-label {
+  min-width: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bar-track {
+  flex: 1;
+  height: 10px;
+  background: var(--color-bg-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 8px;
+  min-width: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+.bar-value {
+  min-width: 36px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Donut Chart ───────────────────────────────────────────────────────────────
+.donut-layout {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  @media (max-width: 600px) { flex-direction: column; }
+}
+.donut-wrap {
+  position: relative;
+  width: 130px; height: 130px;
+  flex-shrink: 0;
+}
+.donut-svg {
+  width: 100%; height: 100%;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 4px 12px rgba(107,127,77,0.25));
+}
+.donut-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.donut-pct {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  letter-spacing: -1px;
+  line-height: 1;
+}
+.donut-sub {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.donut-legend { display: flex; flex-direction: column; gap: 10px; }
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+// ── Summary List ──────────────────────────────────────────────────────────────
+.summary-list { display: flex; flex-direction: column; gap: 16px; }
+.summary-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px;
+  background: var(--color-bg);
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+}
+.summary-icon {
+  font-size: 22px !important;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.summary-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-subtle);
+  margin: 0 0 3px;
+}
+.summary-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+// ── Error ─────────────────────────────────────────────────────────────────────
+.error-box {
+  display: flex; align-items: center; gap: 12px;
+  background: #fef2f2; border: 1.5px solid #fecaca;
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; color: #dc2626;
+  .material-icons { font-size: 22px !important; }
+  p { flex: 1; font-size: 13px; font-weight: 500; }
+}
+.btn-retry {
+  background: #dc2626; color: #fff; border: none; border-radius: 6px;
+  padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+  &:hover { background: #b91c1c; }
+}
+.text-muted { color: var(--color-text-muted); font-size: 13px; }

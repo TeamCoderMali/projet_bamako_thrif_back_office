@@ -1,0 +1,56 @@
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; @media (max-width: 768px) { grid-template-columns: 1fr; } }
+
+.settings-card {
+  background: var(--card-bg); border: 1px solid var(--color-border); border-radius: 14px; overflow: hidden;
+  &__header {
+    display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+    h3 { font-size: 14px; font-weight: 700; color: var(--color-text); margin: 0; }
+  }
+}
+.section-icon { font-size: 20px !important; color: var(--color-primary); }
+.settings-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); } input { padding: 9px 12px; border: 1.5px solid var(--color-border); border-radius: 8px; font-size: 14px; background: var(--color-bg); color: var(--color-text); outline: none; &:focus { border-color: var(--color-primary); } } }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+// Toggle switch
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; }
+.toggle-info { display: flex; flex-direction: column; gap: 2px; }
+.toggle-label { font-size: 14px; font-weight: 600; color: var(--color-text); }
+.toggle-desc  { font-size: 12px; color: var(--color-text-muted); }
+
+.toggle-btn {
+  width: 44px; height: 24px; border-radius: 12px; border: none; cursor: pointer;
+  background: var(--color-border); position: relative; flex-shrink: 0; transition: background 0.2s;
+  &.on { background: var(--color-primary); }
+}
+.toggle-thumb {
+  position: absolute; left: 3px; top: 3px;
+  width: 18px; height: 18px; border-radius: 50%; background: #fff;
+  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  .toggle-btn.on & { transform: translateX(20px); }
+}
+
+// Admin profile
+.admin-profile { display: flex; align-items: center; gap: 14px; }
+.admin-avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.admin-info { display: flex; flex-direction: column; gap: 4px; }
+.admin-name  { font-size: 16px; font-weight: 700; color: var(--color-text); margin: 0; }
+.admin-email { font-size: 13px; margin: 0; }
+.text-muted  { color: var(--color-text-muted); }
+.role-badge  { background: rgba(107,127,77,0.12); color: var(--color-primary-dark); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+
+// Save bar
+.save-bar {
+  position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
+  background: var(--color-text); color: #fff; border-radius: 12px; padding: 12px 20px;
+  display: flex; align-items: center; gap: 16px; min-width: 360px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2); transition: bottom 0.3s ease; z-index: 100;
+  &.visible { bottom: 24px; }
+  p { margin: 0; font-size: 14px; display: flex; align-items: center; gap: 6px; .material-icons { font-size: 16px !important; color: #fbbf24; } }
+}
+.save-actions { display: flex; gap: 8px; margin-left: auto; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; .material-icons { font-size: 15px !important; } &--primary { background: var(--color-primary); color: #fff; &:hover { background: var(--color-primary-dark); } } &--ghost { background: rgba(255,255,255,0.1); color: #fff; &:hover { background: rgba(255,255,255,0.2); } } &:disabled { opacity: 0.5; cursor: not-allowed; } }
+.spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

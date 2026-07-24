@@ -1,0 +1,146 @@
+// ─── Relay Layout Styles ──────────────────────────────────────────────────────
+// Réutilise les styles du admin layout via les mêmes variables CSS
+
+.relay-shell {
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .sidebar__logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--sidebar-border);
+
+    .logo-img {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #1d4ed8;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 15px; font-weight: 800;
+      color: var(--sidebar-text);
+      letter-spacing: 0.05em;
+    }
+    .logo-badge.relay {
+      font-size: 10px; font-weight: 700;
+      background: #1d4ed8;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+  }
+
+  .sidebar__nav {
+    flex: 1;
+    padding: 12px 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--sidebar-text-muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s ease;
+
+    &:hover {
+      background: var(--sidebar-hover);
+      color: var(--sidebar-text);
+    }
+
+    &.nav-item--active {
+      background: rgba(29, 78, 216, 0.15);
+      color: #60a5fa;
+      font-weight: 600;
+    }
+
+    &__icon { font-size: 20px !important; flex-shrink: 0; }
+  }
+
+  .sidebar__footer {
+    padding: 12px 8px;
+    border-top: 1px solid var(--sidebar-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .user-info {
+    display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;
+  }
+
+  .relay-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: #1d4ed8;
+    color: #fff;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .user-details {
+    min-width: 0;
+    .user-name { font-size: 13px; font-weight: 600; color: var(--sidebar-text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 11px; color: #60a5fa; margin: 0; font-weight: 500; }
+  }
+
+  .btn-logout {
+    background: none; border: none;
+    color: var(--sidebar-text-muted);
+    cursor: pointer; padding: 6px;
+    border-radius: 6px;
+    display: flex; align-items: center;
+    &:hover { background: #fee2e2; color: #dc2626; }
+    .material-icons { font-size: 18px !important; }
+  }
+
+  .main {
+    flex: 1;
+    margin-left: 220px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    height: 56px;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: sticky; top: 0; z-index: 50;
+
+    &__title { font-size: 15px; font-weight: 700; color: var(--color-text); margin: 0; }
+    &__right  { display: flex; align-items: center; gap: 12px; }
+    &__time   { font-size: 12px; color: var(--color-text-muted); }
+  }
+
+  .content { flex: 1; padding: 28px; }
+}
+
+.relay-shell { display: flex; min-height: 100vh; background: var(--color-bg); }

@@ -1,0 +1,178 @@
+// ─── Finance Page — Premium Design ───────────────────────────────────────────
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 20px;
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+// ── Panels ────────────────────────────────────────────────────────────────────
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.panel__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+
+  &::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    background: var(--color-primary);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Transactions ──────────────────────────────────────────────────────────────
+.tx-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.1s;
+
+  &:last-child { border-bottom: none; }
+  &:hover { margin: 0 -8px; padding: 12px 8px; border-radius: 8px; border-bottom: none; background: var(--color-bg); }
+}
+
+.tx-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+
+  .material-icons { font-size: 18px !important; }
+
+  &.credit { background: linear-gradient(135deg, #dcfce7, #bbf7d0); color: #15803d; }
+  &.debit  { background: linear-gradient(135deg, #fee2e2, #fecaca); color: #dc2626; }
+  &.refund { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7c3aed; }
+}
+
+.tx-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tx-desc {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-date {
+  font-size: 11px;
+  color: var(--color-text-subtle);
+  font-weight: 500;
+}
+.tx-amount {
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+
+  &.credit { color: #16a34a; }
+  &.debit  { color: #dc2626; }
+}
+
+// ── Order stats bars ──────────────────────────────────────────────────────────
+.order-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--color-border);
+
+  &:last-child { border-bottom: none; }
+}
+.order-stat-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+}
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.order-stat-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--color-bg-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.order-stat-bar {
+  height: 100%;
+  border-radius: 8px;
+  min-width: 4px;
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.order-stat-count {
+  min-width: 32px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Empty states ──────────────────────────────────────────────────────────────
+.empty-state-sm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--color-text-muted);
+
+  .material-icons {
+    font-size: 40px !important;
+    color: var(--color-border);
+  }
+  p { font-size: 14px; font-weight: 500; margin: 0; }
+  small { font-size: 12px; color: var(--color-text-subtle); }
+}
+
+// ── Error ─────────────────────────────────────────────────────────────────────
+.error-box {
+  display: flex; align-items: center; gap: 12px;
+  background: #fef2f2; border: 1.5px solid #fecaca;
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; color: #dc2626;
+  .material-icons { font-size: 22px !important; }
+  p { flex: 1; font-size: 13px; font-weight: 500; }
+}
+.btn-retry {
+  background: #dc2626; color: #fff; border: none; border-radius: 6px;
+  padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+  &:hover { background: #b91c1c; }
+}
