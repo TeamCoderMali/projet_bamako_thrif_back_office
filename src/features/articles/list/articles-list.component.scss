@@ -99,16 +99,33 @@
   white-space: nowrap;
 }
 
-// ── Actions ───────────────────────────────────────────────────────────────────
-.actions { display: flex; gap: 4px; }
+// ── Actions ──────────────────────────────────────────────────────────────
+.actions { display: flex; gap: 4px; align-items: center; }
 .btn-action {
   width: 30px; height: 30px; border-radius: 8px;
   border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all 0.15s; flex-shrink: 0;
   .material-icons { font-size: 15px !important; }
-  &--view   { background: #dbeafe; color: #1d4ed8; &:hover { background: #bfdbfe; } }
-  &--danger { background: #fee2e2; color: #dc2626; &:hover { background: #fecaca; } }
+
+  // Voir le détail
+  &--view    { background: #eff6ff; color: #1d4ed8; &:hover { background: #dbeafe; transform: scale(1.1); } }
+  // Approuver (vert)
+  &--approve { background: #f0fdf4; color: #16a34a; &:hover { background: #dcfce7; transform: scale(1.1); } }
+  // Masquer (orange)
+  &--hide    { background: #fff7ed; color: #ea580c; &:hover { background: #fed7aa; transform: scale(1.1); } }
+  // Supprimer (rouge)
+  &--delete  { background: #fef2f2; color: #dc2626; &:hover { background: #fee2e2; transform: scale(1.1); } }
 }
+
+// Séparateur de couleur stat pills articles
+.stat-pill {
+  display: inline-flex; align-items: center; padding: 4px 10px;
+  border-radius: 20px; font-size: 12px; font-weight: 600;
+  &--green { background: #dcfce7; color: #16a34a; }
+  &--blue  { background: #dbeafe; color: #1d4ed8; }
+  &--gray  { background: #f3f4f6; color: #6b7280; }
+}
+.stats-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
 // ── Bulk actions ──────────────────────────────────────────────────────────────
 .bulk-bar {

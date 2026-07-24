@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
-import { DataService, Product, AppUser } from '../../../core/services/data.service';
+import { DataService, Product, AppUser, getUserName, getUserAvatar, getUserInitials, parseDate } from '../../../core/services/data.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { PageHeaderComponent }    from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent }   from '../../../shared/components/status-badge/status-badge.component';
@@ -99,14 +99,17 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
             <div class="seller-card">
               <h4>Vendeur</h4>
               <div class="seller-info">
-                @if (seller()!.photoURL) {
-                  <img [src]="seller()!.photoURL" class="seller-avatar" />
+                @if (sellerAvatar()) {
+                  <img [src]="sellerAvatar()" class="seller-avatar" />
                 } @else {
-                  <div class="seller-avatar-placeholder">{{ initials(seller()!.displayName) }}</div>
+                  <div class="seller-avatar-placeholder">{{ sellerInitials() }}</div>
                 }
                 <div class="flex-grow">
-                  <p class="seller-name">{{ seller()!.displayName || 'Sans nom' }}</p>
+                  <p class="seller-name">{{ sellerName() }}</p>
                   <p class="seller-email text-muted">{{ seller()!.email || '—' }}</p>
+                  @if (seller()!.phoneNumber) {
+                    <p class="seller-email text-muted">☏ {{ seller()!.phoneNumber }}</p>
+                  }
                 </div>
                 <button class="btn btn--ghost" (click)="viewSeller()">
                   <span class="material-icons">open_in_new</span>
@@ -175,6 +178,11 @@ export class ArticleDetailComponent implements OnInit {
   activeImg     = signal('');
   error         = signal('');
   showDelete    = signal(false);
+
+  // Seller helpers
+  sellerName    = () => getUserName(this.seller());
+  sellerAvatar  = () => getUserAvatar(this.seller());
+  sellerInitials = () => getUserInitials(this.seller());
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
@@ -251,13 +259,13 @@ export class ArticleDetailComponent implements OnInit {
     if (this.seller()) this.router.navigate(['/admin/users', this.seller()!.id]);
   }
 
-  initials(name: string): string {
-    return (name ?? '?').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+  initials(name?: string): string {
+    if (!name) return '??';
+    return name.split(' ').map((n: string) => n[0] ?? '').join('').toUpperCase().slice(0, 2);
   }
 
   formatDate(ts: any): string {
-    if (!ts) return '—';
-    try { const d = ts.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('fr-FR'); }
-    catch { return '—'; }
+    const d = parseDate(ts);
+    return d ? d.toLocaleDateString('fr-FR') : '—';
   }
 }

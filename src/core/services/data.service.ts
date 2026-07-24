@@ -28,12 +28,47 @@ export interface Product {
 export interface AppUser {
   id: string;
   uid?: string;
-  displayName: string;
+  // Flutter stores as 'fullName' — displayName kept for backwards compat
+  fullName?: string;
+  displayName?: string;
   email: string;
+  // Flutter stores as 'avatarUrl' — photoURL kept for backwards compat
+  avatarUrl?: string;
   photoURL?: string;
-  createdAt: any;
+  phoneNumber?: string;
+  bio?: string;
+  createdAt: any;   // can be Firestore Timestamp OR milliseconds integer
   isActive?: boolean;
   isBanned?: boolean;
+  totalListings?: number;
+  totalSales?: number;
+  rating?: number;
+  reviewCount?: number;
+  isEmailVerified?: boolean;
+}
+
+// ── Helpers pour récupérer les champs quelle que soit la convention ────────────
+export function getUserName(u: AppUser | null | undefined): string {
+  if (!u) return 'Utilisateur inconnu';
+  return u.fullName || u.displayName || u.email?.split('@')[0] || '—';
+}
+export function getUserAvatar(u: AppUser | null | undefined): string {
+  return u?.avatarUrl || u?.photoURL || '';
+}
+export function getUserInitials(u: AppUser | null | undefined): string {
+  const name = getUserName(u);
+  return name.split(' ').map((n: string) => n[0] ?? '').join('').toUpperCase().slice(0, 2) || '??';
+}
+export function parseDate(ts: any): Date | null {
+  if (!ts) return null;
+  try {
+    // Firestore Timestamp
+    if (ts?.toDate) return ts.toDate();
+    // Milliseconds integer (Flutter)
+    if (typeof ts === 'number') return new Date(ts);
+    // ISO string
+    return new Date(ts);
+  } catch { return null; }
 }
 
 export interface Order {

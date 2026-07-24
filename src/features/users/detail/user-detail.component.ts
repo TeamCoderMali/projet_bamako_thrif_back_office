@@ -2,16 +2,18 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Firestore, doc, getDoc, collection, query, where, getDocs, limit } from '@angular/fire/firestore';
-import { DataService, AppUser, Product, Order } from '../../../core/services/data.service';
+import {
+  DataService, AppUser, Product, Order,
+  getUserName, getUserAvatar, getUserInitials, parseDate
+} from '../../../core/services/data.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { PageHeaderComponent }    from '../../../shared/components/page-header/page-header.component';
-import { StatusBadgeComponent }   from '../../../shared/components/status-badge/status-badge.component';
+import { StatusBadgeComponent }    from '../../../shared/components/status-badge/status-badge.component';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-user-detail',
   standalone: true,
-  imports: [CommonModule, PageHeaderComponent, StatusBadgeComponent, SkeletonLoaderComponent],
+  imports: [CommonModule, StatusBadgeComponent, SkeletonLoaderComponent],
   template: `
     <div class="back-btn" (click)="back()">
       <span class="material-icons">arrow_back</span> Retour aux utilisateurs
@@ -33,30 +35,39 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
         <p>Utilisateur introuvable.</p>
       </div>
     } @else {
-      <!-- Header card -->
+      <!-- Hero -->
       <div class="user-hero">
-        @if (user()!.photoURL) {
-          <img [src]="user()!.photoURL" class="hero-avatar" [alt]="user()!.displayName" />
+        @if (userAvatar()) {
+          <img [src]="userAvatar()" class="hero-avatar" [alt]="userName()" />
         } @else {
-          <div class="hero-avatar hero-avatar--initials">{{ initials(user()!.displayName) }}</div>
+          <div class="hero-avatar hero-avatar--initials">{{ userInitials() }}</div>
         }
         <div class="hero-info">
-          <h2 class="hero-name">{{ user()!.displayName || 'Sans nom' }}</h2>
+          <h2 class="hero-name">{{ userName() }}</h2>
           <p class="hero-email">{{ user()!.email }}</p>
+          @if (user()!.phoneNumber) {
+            <p class="hero-email" style="color:var(--color-text-subtle)">☏ {{ user()!.phoneNumber }}</p>
+          }
           <div class="hero-meta">
-            <span class="tag">Inscrit le {{ formatDate(user()!.createdAt) }}</span>
-            <span class="tag" [class.tag--banned]="user()!.isBanned">
-              {{ user()!.isBanned ? '🚫 Banni' : '✅ Actif' }}
+            <span class="tag">Inscrit le {{ fmtDate(user()!.createdAt) }}</span>
+            <span class="tag" [class.tag--banned]="isBanned()">
+              {{ isBanned() ? '🚫 Banni' : '✅ Actif' }}
             </span>
+            @if (user()!.rating) {
+              <span class="tag">⭐ {{ user()!.rating | number:'1.1-1' }}</span>
+            }
           </div>
+          @if (user()!.bio) {
+            <p class="hero-bio">{{ user()!.bio }}</p>
+          }
         </div>
         <div class="hero-actions">
           <button class="btn"
-                  [class.btn--danger]="!user()!.isBanned"
-                  [class.btn--success]="user()!.isBanned"
+                  [class.btn--danger]="!isBanned()"
+                  [class.btn--success]="isBanned()"
                   (click)="toggleBan()" [disabled]="updating()">
-            <span class="material-icons">{{ user()!.isBanned ? 'lock_open' : 'block' }}</span>
-            {{ user()!.isBanned ? 'Débannir' : 'Bannir' }}
+            <span class="material-icons">{{ isBanned() ? 'lock_open' : 'block' }}</span>
+            {{ isBanned() ? 'Débannir' : 'Bannir' }}
           </button>
         </div>
       </div>
@@ -65,15 +76,19 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
       <div class="stats-row">
         <div class="stat-box">
           <span class="stat-val">{{ products().length }}</span>
-          <span class="stat-lbl">Articles</span>
+          <span class="stat-lbl">Articles publiés</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val">{{ soldCount() }}</span>
+          <span class="stat-lbl">Vendus</span>
         </div>
         <div class="stat-box">
           <span class="stat-val">{{ orders().length }}</span>
           <span class="stat-lbl">Commandes</span>
         </div>
         <div class="stat-box">
-          <span class="stat-val">{{ soldCount() }}</span>
-          <span class="stat-lbl">Vendus</span>
+          <span class="stat-val">{{ user()!.reviewCount ?? 0 }}</span>
+          <span class="stat-lbl">Avis reçus</span>
         </div>
       </div>
 
@@ -92,7 +107,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
             @for (p of products().slice(0, 8); track p.id) {
               <div class="mini-row" (click)="goArticle(p.id)">
                 @if (p.imageUrls?.[0]) {
-                  <img [src]="p.imageUrls[0]" class="mini-img" />
+                  <img [src]="p.imageUrls[0]" class="mini-img" [alt]="p.title" />
                 } @else {
                   <div class="mini-img mini-img--ph">
                     <span class="material-icons">image</span>
@@ -112,17 +127,20 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
         <div class="panel">
           <h3 class="panel__title">
             <span class="material-icons">shopping_cart</span>
-            Commandes ({{ orders().length }})
+            Achats ({{ orders().length }})
           </h3>
           @if (ordersLoading()) {
             <app-skeleton-loader height="48px" />
           } @else if (orders().length === 0) {
-            <p class="text-muted">Aucune commande.</p>
+            <p class="text-muted">Aucun achat effectué.</p>
           } @else {
             @for (o of orders().slice(0, 8); track o.id) {
               <div class="mini-row">
+                <div class="mini-img mini-img--ph">
+                  <span class="material-icons">receipt</span>
+                </div>
                 <div class="mini-info">
-                  <span class="mini-title">{{ o.productTitle | slice:0:32 }}</span>
+                  <span class="mini-title">{{ o.productTitle | slice:0:30 }}</span>
                   <span class="mini-price">{{ o.totalAmount | number:'1.0-0' }} FCFA</span>
                 </div>
                 <app-status-badge [status]="o.status" />
@@ -151,7 +169,12 @@ export class UserDetailComponent implements OnInit {
   updating        = signal(false);
   error           = signal('');
 
-  soldCount = () => this.products().filter(p => p.status === 'sold').length;
+  // ── Helpers Flutter-compatible ────────────────────────────────────────────
+  userName    = () => getUserName(this.user());
+  userAvatar  = () => getUserAvatar(this.user());
+  userInitials = () => getUserInitials(this.user());
+  isBanned    = () => this.user()?.isBanned === true || this.user()?.isActive === false;
+  soldCount   = () => this.products().filter(p => p.status === 'sold').length;
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.paramMap.get('id');
@@ -159,19 +182,13 @@ export class UserDetailComponent implements OnInit {
 
     try {
       const snap = await getDoc(doc(this.fs, 'users', id));
-      if (!snap.exists()) {
-        this.error.set('Utilisateur introuvable');
-        this.loading.set(false);
-        return;
-      }
+      if (!snap.exists()) { this.error.set('Utilisateur introuvable'); this.loading.set(false); return; }
       this.user.set({ id: snap.id, ...snap.data() } as AppUser);
       this.loading.set(false);
-
-      // Charger les articles du vendeur (sans orderBy → pas d'index composite requis)
       this.loadProducts(id);
       this.loadOrders(id);
     } catch (err: any) {
-      console.error('[UserDetail] Error:', err?.code, err?.message);
+      console.error('[UserDetail]', err?.code, err?.message);
       this.error.set(err?.message ?? 'Erreur Firestore');
       this.loading.set(false);
     }
@@ -179,40 +196,26 @@ export class UserDetailComponent implements OnInit {
 
   private async loadProducts(uid: string): Promise<void> {
     try {
-      // sans orderBy pour éviter l'index composite
-      const q = query(collection(this.fs, 'product'), where('sellerId', '==', uid), limit(20));
-      const snap = await getDocs(q);
+      const snap = await getDocs(query(collection(this.fs, 'product'), where('sellerId', '==', uid), limit(20)));
       const prods = snap.docs.map(d => ({ id: d.id, ...d.data() } as Product));
-      // tri côté client
-      prods.sort((a: any, b: any) => {
-        const ta = a.createdAt?.seconds ?? 0;
-        const tb = b.createdAt?.seconds ?? 0;
-        return tb - ta;
-      });
+      prods.sort((a: any, b: any) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
       this.products.set(prods);
-    } catch (err: any) {
-      console.warn('[UserDetail] loadProducts:', err?.message);
-    } finally {
-      this.productsLoading.set(false);
-    }
+    } catch (err: any) { console.warn('[UserDetail] products:', err?.message); }
+    finally { this.productsLoading.set(false); }
   }
 
   private async loadOrders(uid: string): Promise<void> {
     try {
-      const q = query(collection(this.fs, 'order'), where('buyerId', '==', uid), limit(20));
-      const snap = await getDocs(q);
+      const snap = await getDocs(query(collection(this.fs, 'order'), where('buyerId', '==', uid), limit(20)));
       this.orders.set(snap.docs.map(d => ({ id: d.id, ...d.data() } as Order)));
-    } catch (err: any) {
-      console.warn('[UserDetail] loadOrders:', err?.message);
-    } finally {
-      this.ordersLoading.set(false);
-    }
+    } catch (err: any) { console.warn('[UserDetail] orders:', err?.message); }
+    finally { this.ordersLoading.set(false); }
   }
 
   async toggleBan(): Promise<void> {
     const u = this.user();
     if (!u) return;
-    const newState = !u.isBanned;
+    const newState = !this.isBanned();
     this.updating.set(true);
     try {
       await this.dataService.banUser(u.id, newState);
@@ -225,13 +228,8 @@ export class UserDetailComponent implements OnInit {
   back(): void { this.router.navigate(['/admin/users']); }
   goArticle(id: string): void { this.router.navigate(['/admin/articles', id]); }
 
-  initials(name: string): string {
-    return (name ?? '?').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
-  }
-
-  formatDate(ts: any): string {
-    if (!ts) return '—';
-    try { const d = ts.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('fr-FR'); }
-    catch { return '—'; }
+  fmtDate(ts: any): string {
+    const d = parseDate(ts);
+    return d ? d.toLocaleDateString('fr-FR') : '—';
   }
 }

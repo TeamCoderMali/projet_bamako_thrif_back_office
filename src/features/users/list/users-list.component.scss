@@ -99,7 +99,27 @@
 }
 .page-info { font-size: 12px; font-weight: 600; color: var(--color-text); }
 
-// ── Empty ──────────────────────────────────────────────────────────────────────
+// ── Status pill ──────────────────────────────────────────────────────────────
+.status-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  background: #dcfce7; color: #16a34a;
+  &.banned { background: #fee2e2; color: #dc2626; }
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+}
+.stat-pill {
+  padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  background: var(--color-primary-alpha); color: var(--color-primary-dark);
+  border: 1px solid rgba(107,127,77,0.25);
+}
+.user-sub {
+  font-size: 11px; color: var(--color-text-muted); font-weight: 500;
+}
+
+// ── Empty ─────────────────────────────────────────────────────────────────────
 .empty-state {
   padding: 64px; text-align: center; color: var(--color-text-muted);
   .material-icons { font-size: 52px !important; display: block; margin-bottom: 12px; color: var(--color-border); }

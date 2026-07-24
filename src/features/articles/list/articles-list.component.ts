@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { DataService, Product } from '../../../core/services/data.service';
+import { DataService, Product, parseDate } from '../../../core/services/data.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -121,41 +121,24 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
                 <td class="text-muted">{{ formatDate(p.createdAt) }}</td>
                 <td>
                   <div class="actions">
-                    <button class="btn-icon" title="Voir le détail" (click)="viewDetail(p.id)">
-                      <span class="material-icons">visibility</span>
+                    <!-- Voir -->
+                    <button class="btn-action btn-action--view" title="Voir le détail" (click)="viewDetail(p.id)">
+                      <span class="material-icons">open_in_new</span>
                     </button>
+                    <!-- Approuver -->
                     @if (p.status !== 'available') {
-                      <button
-                        class="btn-icon btn-icon--success"
-                        title="Rendre disponible"
-                        (click)="updateStatus(p, 'available')"
-                      >
+                      <button class="btn-action btn-action--approve" title="Approuver" (click)="updateStatus(p, 'available')">
                         <span class="material-icons">check_circle</span>
                       </button>
                     }
+                    <!-- Masquer -->
                     @if (p.status !== 'inactive') {
-                      <button
-                        class="btn-icon btn-icon--warn"
-                        title="Masquer"
-                        (click)="updateStatus(p, 'inactive')"
-                      >
+                      <button class="btn-action btn-action--hide" title="Masquer" (click)="updateStatus(p, 'inactive')">
                         <span class="material-icons">visibility_off</span>
                       </button>
                     }
-                    @if (p.status !== 'rejected') {
-                      <button
-                        class="btn-icon btn-icon--danger"
-                        title="Rejeter"
-                        (click)="updateStatus(p, 'rejected')"
-                      >
-                        <span class="material-icons">block</span>
-                      </button>
-                    }
-                    <button
-                      class="btn-icon btn-icon--delete"
-                      title="Supprimer"
-                      (click)="confirmDelete(p)"
-                    >
+                    <!-- Supprimer -->
+                    <button class="btn-action btn-action--delete" title="Supprimer" (click)="confirmDelete(p)">
                       <span class="material-icons">delete_outline</span>
                     </button>
                   </div>
@@ -165,7 +148,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
           </tbody>
         </table>
         <div class="table-footer">
-          Affichage de {{ filtered().length }} / {{ products().length }} articles
+          <span>{{ filtered().length }} / {{ products().length }} articles</span>
         </div>
       }
     </div>
@@ -298,12 +281,7 @@ export class ArticlesListComponent implements OnInit {
   }
 
   formatDate(ts: any): string {
-    if (!ts) return '—';
-    try {
-      const d = ts.toDate ? ts.toDate() : new Date(ts);
-      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
-    } catch {
-      return '—';
-    }
+    const d = parseDate(ts);
+    return d ? d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
   }
 }
