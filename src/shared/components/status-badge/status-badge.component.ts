@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 export type BadgeStatus =
   | 'available' | 'sold' | 'inactive' | 'pending' | 'rejected' | 'reserved'
   | 'active'    | 'banned' | 'open' | 'resolved' | 'closed'
-  | 'processing' | 'delivered' | 'in_transit' | string;
+  | 'processing' | 'delivered' | 'in_transit' | 'deposited' | 'ready_pickup' | string;
 
 @Component({
   selector: 'app-status-badge',
@@ -60,6 +60,8 @@ export class StatusBadgeComponent {
       processing:  'En traitement',
       delivered:   'Livré',
       in_transit:  'En transit',
+      deposited:   'Déposé',
+      ready_pickup: 'Disponible (retrait)',
     };
     return labels[this.status] ?? this.status;
   }
@@ -69,7 +71,7 @@ export class StatusBadgeComponent {
       available: 'green', sold: 'blue', inactive: 'gray', pending: 'yellow',
       rejected: 'red', reserved: 'purple', active: 'green', banned: 'red',
       open: 'orange', resolved: 'green', closed: 'gray', processing: 'orange',
-      delivered: 'green', in_transit: 'blue',
+      delivered: 'green', in_transit: 'blue', deposited: 'orange', ready_pickup: 'green',
     };
     return colors[this.status] ?? 'gray';
   }
