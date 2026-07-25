@@ -61,6 +61,12 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
           <div class="info-header">
             <h2 class="info-title">{{ product()!.title }}</h2>
             <app-status-badge [status]="product()!.status" />
+            @if (product()!.isVerified) {
+              <span class="tag" style="background:#dcfce7;color:#16a34a;font-weight:600;">
+                <span class="material-icons" style="font-size:14px;vertical-align:-2px;">verified</span>
+                Vérifié DANAYA
+              </span>
+            }
           </div>
 
           <div class="price-row">
@@ -140,6 +146,17 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
                       [disabled]="updating()">
                 <span class="material-icons">delete_outline</span> Supprimer
               </button>
+            </div>
+            <div class="action-row" style="margin-top:8px;">
+              @if (product()!.isVerified) {
+                <button class="btn btn--warn" (click)="toggleVerified(false)" [disabled]="updating()">
+                  <span class="material-icons">remove_circle_outline</span> Retirer la vérification
+                </button>
+              } @else {
+                <button class="btn btn--success" (click)="toggleVerified(true)" [disabled]="updating()">
+                  <span class="material-icons">verified</span> Marquer vérifié (après inspection)
+                </button>
+              }
             </div>
           </div>
         </div>
@@ -232,6 +249,21 @@ export class ArticleDetailComponent implements OnInit {
     } catch (err: any) {
       console.error('[ArticleDetail] setStatus error:', err?.message);
       this.toast.error('Impossible de modifier le statut');
+    }
+    finally { this.updating.set(false); }
+  }
+
+  async toggleVerified(isVerified: boolean): Promise<void> {
+    const p = this.product();
+    if (!p) return;
+    this.updating.set(true);
+    try {
+      await this.dataService.updateProductVerified(p.id, isVerified);
+      this.product.update(prev => prev ? { ...prev, isVerified } : null);
+      this.toast.success(isVerified ? 'Article marqué comme vérifié' : 'Vérification retirée');
+    } catch (err: any) {
+      console.error('[ArticleDetail] toggleVerified error:', err?.message);
+      this.toast.error('Impossible de modifier la vérification');
     }
     finally { this.updating.set(false); }
   }

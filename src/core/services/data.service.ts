@@ -23,6 +23,7 @@ export interface Product {
   imageUrls: string[];
   createdAt: any;
   viewCount?: number;
+  isVerified?: boolean;
 }
 
 export interface AppUser {
@@ -160,6 +161,10 @@ export class DataService {
 
   updateProductStatus(id: string, status: string): Promise<void> {
     return updateDoc(doc(this.fs, 'product', id), { status, updatedAt: Timestamp.now() });
+  }
+
+  updateProductVerified(id: string, isVerified: boolean): Promise<void> {
+    return updateDoc(doc(this.fs, 'product', id), { isVerified, updatedAt: Timestamp.now() });
   }
 
   deleteProduct(id: string): Promise<void> {
