@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Firestore, collection, query, where, getDocs, addDoc, Timestamp, limit } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc, Timestamp, limit } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -10,7 +10,7 @@ import { PageHeaderComponent }     from '../../../shared/components/page-header/
 import { StatusBadgeComponent }    from '../../../shared/components/status-badge/status-badge.component';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 
-interface NC { id: string; productTitle: string; reason: string; description: string; status: string; createdAt: any; photoUrls?: string[]; }
+interface NC { id: string; productTitle: string; reason: string; description: string; status: string; createdAt: any; photoUrls?: string[]; sellerId?: string; orderId?: string; }
 
 interface PhotoPreview { file: File; url: string; }
 
@@ -140,11 +140,13 @@ export class NonConformitiesComponent implements OnInit {
   photoPreviews = signal<PhotoPreview[]>([]);
   lightboxUrl = signal<string | null>(null);
   form     = { productTitle: '', reason: '', description: '' };
+  currentOrderId: string | null = null;
 
   async ngOnInit(): Promise<void> {
     // Pré-remplissage si on arrive depuis "Signaler NC" sur une commande précise
     const qp = this.route.snapshot.queryParamMap;
     const productTitle = qp.get('productTitle');
+    this.currentOrderId = qp.get('orderId');
     if (productTitle) {
       this.form.productTitle = productTitle;
       this.showForm.set(true);
@@ -191,6 +193,15 @@ export class NonConformitiesComponent implements OnInit {
     try {
       const uid = this.authService.currentUser()?.uid ?? '';
 
+      // 0. Retrouve le vendeur concerné via la commande, pour pouvoir
+      // compter ses non-conformités et appliquer les sanctions automatiques
+      // (cahier des charges 2.3 : 3 = suspension 7j, 5 = ban).
+      let sellerId: string | undefined;
+      if (this.currentOrderId) {
+        const orderSnap = await getDoc(doc(this.fs, 'order', this.currentOrderId));
+        sellerId = orderSnap.data()?.['sellerId'];
+      }
+
       // 1. Upload des photos vers Firebase Storage
       const photoUrls: string[] = [];
       const previews = this.photoPreviews();
@@ -205,10 +216,19 @@ export class NonConformitiesComponent implements OnInit {
       }
 
       // 2. Création du document Firestore avec les URLs des photos
-      const ref2 = await addDoc(collection(this.fs, 'non_conformities'), {
-        ...this.form, relayManagerId: uid, status: 'open', photoUrls, createdAt: Timestamp.now(),
-      });
-      this.ncs.update(list => [{ id: ref2.id, ...this.form, status: 'open', photoUrls, createdAt: Timestamp.now() }, ...list]);
+      const ncData = {
+        ...this.form, relayManagerId: uid, status: 'open', photoUrls,
+        sellerId: sellerId ?? null, orderId: this.currentOrderId ?? null,
+        createdAt: Timestamp.now(),
+      };
+      const ref2 = await addDoc(collection(this.fs, 'non_conformities'), ncData);
+      this.ncs.update(list => [{ id: ref2.id, ...ncData } as NC, ...list]);
+
+      // 3. Applique les sanctions automatiques si on connaît le vendeur
+      if (sellerId) {
+        await this._applySanctionsIfNeeded(sellerId);
+      }
+
       this.closeForm();
       this.toast.success('Non-conformité signalée avec photos');
     } catch (err: any) {
@@ -216,6 +236,34 @@ export class NonConformitiesComponent implements OnInit {
       this.toast.error('Erreur lors de l\'envoi');
     } finally {
       this.saving.set(false);
+    }
+  }
+
+  /** Compte les non-conformités du vendeur et applique automatiquement
+   *  suspension (7j) à la 3e, et bannissement à la 5e (cahier des charges 2.3). */
+  private async _applySanctionsIfNeeded(sellerId: string): Promise<void> {
+    const q = query(collection(this.fs, 'non_conformities'), where('sellerId', '==', sellerId));
+    const snap = await getDocs(q);
+    const count = snap.size;
+
+    const userRef = doc(this.fs, 'users', sellerId);
+
+    if (count === 5) {
+      await updateDoc(userRef, {
+        isBanned: true,
+        isActive: false,
+        bannedAt: Timestamp.now(),
+        bannedReason: '5 non-conformités constatées',
+      });
+      this.toast.warning('Vendeur banni automatiquement (5 non-conformités)');
+    } else if (count === 3) {
+      const until = new Date();
+      until.setDate(until.getDate() + 7);
+      await updateDoc(userRef, {
+        suspendedUntil: Timestamp.fromDate(until),
+        suspendedReason: '3 non-conformités constatées',
+      });
+      this.toast.warning('Vendeur suspendu automatiquement 7 jours (3 non-conformités)');
     }
   }
 

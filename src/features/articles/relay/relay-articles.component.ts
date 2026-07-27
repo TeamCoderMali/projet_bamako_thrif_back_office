@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, query, getDocs, updateDoc, doc, Timestamp, limit, where } from '@angular/fire/firestore';
+import { Firestore, collection, query, getDocs, updateDoc, doc, Timestamp, limit, where, increment } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
 import { ToastService } from '../../../core/services/toast.service';
 import { PageHeaderComponent }     from '../../../shared/components/page-header/page-header.component';
@@ -20,6 +20,7 @@ interface Order {
   totalAmount: number;
   status: string;
   isVerified?: boolean;
+  buyerId?: string;
   createdAt: any;
 }
 
@@ -142,8 +143,27 @@ export class RelayArticlesComponent implements OnInit {
     const step = this.nextStep(o.status);
     if (!step) return;
     try {
-      await updateDoc(doc(this.fs, 'order', o.id), { status: step.next, updatedAt: Timestamp.now() });
+      const updates: Record<string, any> = { status: step.next, updatedAt: Timestamp.now() };
+      // On note précisément quand l'article devient disponible au retrait,
+      // pour pouvoir calculer le délai J+7 (frais de garde) côté app mobile.
+      if (step.next === 'ready_pickup') {
+        updates['readyPickupAt'] = Timestamp.now();
+      }
+      await updateDoc(doc(this.fs, 'order', o.id), updates);
+
       if (step.next === 'completed') {
+        // Transaction terminée : on marque le produit comme vendu pour qu'il
+        // disparaisse du catalogue mobile (comme Vinted), sans le supprimer —
+        // il reste consultable dans l'Historique admin/relay.
+        await updateDoc(doc(this.fs, 'product', o.productId), { status: 'sold', updatedAt: Timestamp.now() });
+
+        // Met à jour le compteur "Achats" affiché sur le Profil de l'acheteur
+        if (o.buyerId) {
+          await updateDoc(doc(this.fs, 'users', o.buyerId), {
+            totalSales: increment(1),
+          });
+        }
+
         // Commande récupérée : on retire l'article de la liste des choses à traiter
         this.orders.update(list => list.filter(x => x.id !== o.id));
       } else {
