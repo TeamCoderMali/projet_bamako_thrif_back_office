@@ -1,12 +1,17 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, query, orderBy, collectionData, doc, updateDoc, addDoc, Timestamp } from '@angular/fire/firestore';
+import { Firestore, collection, query, orderBy, collectionData, doc, updateDoc, Timestamp } from '@angular/fire/firestore';
 import { ToastService } from '../../core/services/toast.service';
 import { PageHeaderComponent }     from '../../shared/components/page-header/page-header.component';
 import { StatusBadgeComponent }    from '../../shared/components/status-badge/status-badge.component';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
 
+// NOTE : depuis le passage au circuit de livraison externe, l'évaluation du
+// coût de remise en état (litiges liés aux articles) est traitée par le
+// relais (voir /relay/disputes → relay-disputes.component.ts). Cette page
+// admin garde la gestion des litiges génériques (collection "disputes"),
+// pour supervision générale.
 interface Dispute {
   id: string;
   orderId: string;

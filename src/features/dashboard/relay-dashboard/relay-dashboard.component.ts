@@ -1,15 +1,19 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Firestore, collection, query, where, getDocs, limit } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
+import { Firestore, collection, query, where, getDocs, orderBy, limit } from '@angular/fire/firestore';
 import { AuthService } from '../../../core/auth/auth.service';
 import { PageHeaderComponent } from '../../../shared/components/page-header/page-header.component';
 import { StatCardComponent }   from '../../../shared/components/stat-card/stat-card.component';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
-interface RelayArticle {
-  id: string; title: string; price: number; status: string;
-  imageUrls: string[]; createdAt: any;
+// Depuis le changement de circuit (livraison externe), le relais ne gère
+// plus le dépôt/inspection/retrait — son seul rôle restant est le
+// traitement des litiges signalés par les acheteurs (photos annonce vs
+// photos du signalement).
+interface RecentNC {
+  id: string; productTitle: string; reason: string; status: string; createdAt: any;
 }
 
 @Component({
@@ -17,35 +21,34 @@ interface RelayArticle {
   standalone: true,
   imports: [CommonModule, PageHeaderComponent, StatCardComponent, SkeletonLoaderComponent, StatusBadgeComponent],
   template: `
-    <app-page-header [title]="'Bonjour, ' + userName()" subtitle="Tableau de bord de votre point relais" />
+    <app-page-header [title]="'Bonjour, ' + userName()" subtitle="Litiges à traiter" />
 
     @if (loading()) {
       <div class="kpi-grid">@for (i of [1,2,3]; track i) { <app-skeleton-loader height="96px" /> }</div>
     } @else {
       <div class="kpi-grid">
-        <app-stat-card label="Articles en attente" [value]="pendingCount().toString()" icon="inventory_2"     iconBg="#f59e0b" />
-        <app-stat-card label="Reçus aujourd'hui"   [value]="todayCount().toString()"  icon="check_circle"    iconBg="#16a34a" />
-        <app-stat-card label="Non-conformités"     [value]="ncCount().toString()"     icon="report_problem"  iconBg="#dc2626" />
+        <app-stat-card label="À évaluer"          [value]="toEvaluateCount().toString()" icon="request_quote"   iconBg="#f59e0b" />
+        <app-stat-card label="Chez le vendeur"     [value]="awaitingSellerCount().toString()" icon="hourglass_top" iconBg="#6b7f4d" />
+        <app-stat-card label="Résolus ce mois-ci"  [value]="resolvedCount().toString()"   icon="check_circle"    iconBg="#16a34a" />
       </div>
     }
 
-    <!-- Articles récents -->
+    <!-- Litiges récents -->
     <div class="panel">
-      <h3 class="panel__title">Articles récents</h3>
+      <h3 class="panel__title">Litiges récents</h3>
       @if (loading()) {
         @for (i of [1,2,3]; track i) { <app-skeleton-loader height="56px" style="margin-bottom:8px" /> }
-      } @else if (recentArticles().length === 0) {
-        <div class="empty-sm"><span class="material-icons">inbox</span><p>Aucun article assigné à ce relais.</p></div>
+      } @else if (recentNCs().length === 0) {
+        <div class="empty-sm"><span class="material-icons">check_circle</span><p>Aucun litige en cours. 🎉</p></div>
       } @else {
-        @for (a of recentArticles(); track a.id) {
-          <div class="article-row">
-            @if (a.imageUrls?.[0]) { <img [src]="a.imageUrls[0]" class="mini-img" /> }
-            @else { <div class="mini-img mini-img--ph"><span class="material-icons">image</span></div> }
+        @for (nc of recentNCs(); track nc.id) {
+          <div class="article-row" style="cursor:pointer" (click)="goToDisputes()">
+            <div class="mini-img mini-img--ph"><span class="material-icons">report_problem</span></div>
             <div class="article-info">
-              <span class="article-title">{{ a.title | slice:0:40 }}</span>
-              <span class="article-price">{{ a.price | number:'1.0-0' }} FCFA</span>
+              <span class="article-title">{{ nc.productTitle | slice:0:40 }}</span>
+              <span class="article-price">{{ nc.reason }}</span>
             </div>
-            <app-status-badge [status]="a.status" />
+            <app-status-badge [status]="nc.status" />
           </div>
         }
       }
@@ -56,35 +59,48 @@ interface RelayArticle {
 export class RelayDashboardComponent implements OnInit {
   private fs          = inject(Firestore);
   private authService: AuthService = inject(AuthService);
+  private router       = inject(Router);
 
-  loading        = signal(true);
-  pendingCount   = signal(0);
-  todayCount     = signal(0);
-  ncCount        = signal(0);
-  recentArticles = signal<RelayArticle[]>([]);
+  loading             = signal(true);
+  toEvaluateCount     = signal(0);
+  awaitingSellerCount = signal(0);
+  resolvedCount       = signal(0);
+  recentNCs           = signal<RecentNC[]>([]);
 
   userName = () => {
     const name = this.authService.currentUser()?.displayName ?? 'Gestionnaire';
     return name.split(' ')[0];
   };
 
+  goToDisputes(): void {
+    this.router.navigate(['/relay/disputes']);
+  }
+
   async ngOnInit(): Promise<void> {
-    const uid = this.authService.currentUser()?.uid;
     try {
-      // Articles en attente (pending ou reserved au relais)
-      const pq = query(collection(this.fs, 'product'), where('status', '==', 'reserved'), limit(50));
-      const ps = await getDocs(pq);
-      this.pendingCount.set(ps.size);
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
 
-      // Articles récents
-      const rq = query(collection(this.fs, 'product'), limit(10));
-      const rs = await getDocs(rq);
-      this.recentArticles.set(rs.docs.map(d => ({ id: d.id, ...d.data() } as RelayArticle)));
+      const evalQ = query(collection(this.fs, 'non_conformities'), where('status', '==', 'buyer_continue'), limit(100));
+      this.toEvaluateCount.set((await getDocs(evalQ)).size);
 
-      // NCs
-      const ncq = query(collection(this.fs, 'non_conformities'), where('relayManagerId', '==', uid ?? ''), limit(50));
-      const ncs = await getDocs(ncq);
-      this.ncCount.set(ncs.size);
+      const sellerQ = query(collection(this.fs, 'non_conformities'), where('status', '==', 'awaiting_seller_acceptance'), limit(100));
+      this.awaitingSellerCount.set((await getDocs(sellerQ)).size);
+
+      const resolvedQ = query(
+        collection(this.fs, 'non_conformities'),
+        where('status', 'in', ['seller_accepted', 'buyer_refused_avoir', 'buyer_refused_refund']),
+        limit(200),
+      );
+      const resolvedSnap = await getDocs(resolvedQ);
+      this.resolvedCount.set(resolvedSnap.docs.filter(d => {
+        const createdAt = d.data()['createdAt']?.toDate?.();
+        return createdAt && createdAt >= startOfMonth;
+      }).length);
+
+      const recentQ = query(collection(this.fs, 'non_conformities'), orderBy('createdAt', 'desc'), limit(10));
+      this.recentNCs.set((await getDocs(recentQ)).docs.map(d => ({ id: d.id, ...d.data() } as RecentNC)));
 
     } catch { } finally { this.loading.set(false); }
   }

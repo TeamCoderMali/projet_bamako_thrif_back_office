@@ -12,7 +12,7 @@ interface HistoryEntry {
   totalAmount: number;
   status: string;
   createdAt: any;
-  updatedAt?: any;
+  receivedAt?: any;
 }
 
 @Component({
@@ -20,17 +20,17 @@ interface HistoryEntry {
   standalone: true,
   imports: [CommonModule, PageHeaderComponent, StatusBadgeComponent, SkeletonLoaderComponent],
   template: `
-    <app-page-header title="Historique" subtitle="Commandes récupérées par les acheteurs">
-      <span class="stat-pill">{{ history().length }} commandes récupérées</span>
+    <app-page-header title="Historique" subtitle="Commandes reçues par les acheteurs">
+      <span class="stat-pill">{{ history().length }} commandes terminées</span>
     </app-page-header>
 
     <div class="table-card">
       @if (loading()) { <div class="skeleton-list">@for (i of [1,2,3,4,5]; track i) { <app-skeleton-loader height="56px" /> }</div> }
       @else if (history().length === 0) {
-        <div class="empty-state"><span class="material-icons">history</span><p>Aucune commande récupérée pour le moment.</p></div>
+        <div class="empty-state"><span class="material-icons">history</span><p>Aucune commande terminée pour le moment.</p></div>
       } @else {
         <table class="data-table">
-          <thead><tr><th>Article</th><th>Montant</th><th>Statut</th><th>Vendu le</th><th>Récupéré le</th></tr></thead>
+          <thead><tr><th>Article</th><th>Montant</th><th>Statut</th><th>Vendu le</th><th>Reçu le</th></tr></thead>
           <tbody>
             @for (h of history(); track h.id) {
               <tr>
@@ -44,7 +44,7 @@ interface HistoryEntry {
                 <td class="price">{{ h.totalAmount | number:'1.0-0' }} FCFA</td>
                 <td><app-status-badge [status]="h.status" /></td>
                 <td class="text-muted">{{ formatDate(h.createdAt) }}</td>
-                <td class="text-muted">{{ formatDate(h.updatedAt) }}</td>
+                <td class="text-muted">{{ formatDate(h.receivedAt) }}</td>
               </tr>
             }
           </tbody>
@@ -63,7 +63,6 @@ export class RelayHistoryComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      // Aligné sur le parcours commande : "Récupéré" = order.status === 'completed'
       const snap = await getDocs(query(collection(this.fs, 'order'), where('status', '==', 'completed'), limit(200)));
       this.history.set(snap.docs.map(d => ({ id: d.id, ...d.data() } as HistoryEntry)));
     } catch {} finally { this.loading.set(false); }

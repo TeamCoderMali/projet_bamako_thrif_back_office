@@ -92,6 +92,9 @@ export const routes: Routes = [
   },
 
   // ── Relay Manager routes ───────────────────────────────────────────────────
+  // Depuis le passage à un circuit de livraison externe (le livreur n'a pas
+  // accès au dashboard), le relais ne gère plus le dépôt/inspection/retrait.
+  // Son seul rôle restant : traiter les litiges signalés par les acheteurs.
   {
     path: 'relay',
     component: RelayLayoutComponent,
@@ -105,14 +108,9 @@ export const routes: Routes = [
           import('../features/dashboard/relay-dashboard/relay-dashboard.component').then(m => m.RelayDashboardComponent),
       },
       {
-        path: 'articles',
+        path: 'disputes',
         loadComponent: () =>
-          import('../features/articles/relay/relay-articles.component').then(m => m.RelayArticlesComponent),
-      },
-      {
-        path: 'non-conformities',
-        loadComponent: () =>
-          import('../features/disputes/relay/non-conformities.component').then(m => m.NonConformitiesComponent),
+          import('../features/disputes/relay/relay-disputes.component').then(m => m.RelayDisputesComponent),
       },
       {
         path: 'history',
