@@ -252,3 +252,41 @@
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+// ── Responsive : sidebar en drawer sous 768px ──────────────────────────────────
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99;
+  animation: fadeIn 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+  .mobile-menu-open .sidebar {
+    transform: translateX(0);
+  }
+  // Le collapse "rail d'icônes" (desktop) ne s'applique pas en mode drawer mobile
+  .sidebar-collapsed .sidebar {
+    width: 260px;
+    .logo-img, .logo-badge, .nav-item__label, .user-details, .nav-group-label { display: unset; }
+    .nav-item { justify-content: flex-start; padding: 9px 12px; }
+  }
+  .main {
+    margin-left: 0 !important;
+  }
+  .content {
+    padding: 18px 16px;
+  }
+  .topbar {
+    padding: 0 16px;
+  }
+  .topbar__time {
+    display: none;
+  }
+}

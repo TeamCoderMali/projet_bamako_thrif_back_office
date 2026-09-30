@@ -99,7 +99,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
           <tbody>
             @for (p of filtered(); track p.id) {
               <tr>
-                <td>
+                <td class="td-identity">
                   <div class="article-cell">
                     @if (p.imageUrls?.[0]) {
                       <img [src]="p.imageUrls[0]" [alt]="p.title" class="article-thumb" />
@@ -114,12 +114,12 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
                     </div>
                   </div>
                 </td>
-                <td class="price">{{ p.price | number: '1.0-0' }} FCFA</td>
-                <td class="text-muted">{{ p.category || '—' }}</td>
-                <td><app-status-badge [status]="p.status" /></td>
-                <td class="text-muted">{{ p.viewCount ?? 0 }}</td>
-                <td class="text-muted">{{ formatDate(p.createdAt) }}</td>
-                <td>
+                <td class="price" data-label="Prix">{{ p.price | number: '1.0-0' }} FCFA</td>
+                <td class="text-muted" data-label="Catégorie">{{ p.category || '—' }}</td>
+                <td data-label="Statut"><app-status-badge [status]="p.status" /></td>
+                <td class="text-muted" data-label="Vues">{{ p.viewCount ?? 0 }}</td>
+                <td class="text-muted" data-label="Date">{{ formatDate(p.createdAt) }}</td>
+                <td class="td-actions">
                   <div class="actions">
                     <!-- Voir -->
                     <button class="btn-action btn-action--view" title="Voir le détail" (click)="viewDetail(p.id)">

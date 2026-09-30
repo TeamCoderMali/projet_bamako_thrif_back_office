@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
@@ -9,7 +9,10 @@ import { ToastContainerComponent } from '../../shared/components/confirm-dialog/
   standalone: true,
   imports: [CommonModule, DatePipe, RouterModule, RouterLink, RouterLinkActive, ToastContainerComponent],
   template: `
-    <div class="shell relay-shell">
+    <div class="shell relay-shell" [class.mobile-menu-open]="mobileMenuOpen()">
+      @if (mobileMenuOpen()) {
+        <div class="sidebar-overlay" (click)="closeMobileMenu()"></div>
+      }
       <aside class="sidebar">
         <div class="sidebar__logo">
           <img src="/danaya_logo_dashboard_dark_header.png" alt="DANAYA" class="logo-img" />
@@ -21,7 +24,8 @@ import { ToastContainerComponent } from '../../shared/components/confirm-dialog/
             <a class="nav-item"
                [routerLink]="item.route"
                routerLinkActive="nav-item--active"
-               [title]="item.label">
+               [title]="item.label"
+               (click)="closeMobileMenu()">
               <span class="material-icons nav-item__icon">{{ item.icon }}</span>
               <span class="nav-item__label">{{ item.label }}</span>
             </a>
@@ -44,6 +48,9 @@ import { ToastContainerComponent } from '../../shared/components/confirm-dialog/
 
       <div class="main">
         <header class="topbar">
+          <button class="topbar__toggle" (click)="toggleMobileMenu()">
+            <span class="material-icons">menu</span>
+          </button>
           <h2 class="topbar__title">Point Relais</h2>
           <div class="topbar__right">
             <span class="topbar__time">{{ now | date:'d MMM · HH:mm' }}</span>
@@ -62,6 +69,7 @@ import { ToastContainerComponent } from '../../shared/components/confirm-dialog/
 export class RelayLayoutComponent {
   private authService: AuthService = inject(AuthService);
   now = new Date();
+  mobileMenuOpen = signal(false);
 
   currentUser = this.authService.currentUser;
 
@@ -85,4 +93,12 @@ export class RelayLayoutComponent {
   }
 
   logout(): void { this.authService.logout(); }
+
+  toggleMobileMenu(): void { this.mobileMenuOpen.update(v => !v); }
+  closeMobileMenu(): void { this.mobileMenuOpen.set(false); }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (window.innerWidth > 768) this.mobileMenuOpen.set(false);
+  }
 }

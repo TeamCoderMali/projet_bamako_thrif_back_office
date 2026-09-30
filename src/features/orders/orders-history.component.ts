@@ -127,7 +127,7 @@ interface Order {
           <tbody>
             @for (o of paged(); track o.id) {
               <tr>
-                <td>
+                <td class="td-identity">
                   <div class="article-cell">
                     @if (o.productImageUrl) {
                       <img [src]="o.productImageUrl" class="article-thumb" />
@@ -139,13 +139,13 @@ interface Order {
                     <span class="article-title">{{ o.productTitle | slice: 0 : 32 }}</span>
                   </div>
                 </td>
-                <td class="price">{{ o.totalAmount | number: '1.0-0' }} FCFA</td>
-                <td>
+                <td class="price" data-label="Montant">{{ o.totalAmount | number: '1.0-0' }} FCFA</td>
+                <td data-label="Paiement">
                   <span class="method-badge">{{ methodLabel(o.paymentMethod) }}</span>
                 </td>
-                <td><app-status-badge [status]="o.status" /></td>
-                <td class="text-muted">{{ formatDate(o.createdAt) }}</td>
-                <td>
+                <td data-label="Statut"><app-status-badge [status]="o.status" /></td>
+                <td class="text-muted" data-label="Date">{{ formatDate(o.createdAt) }}</td>
+                <td data-label="ID commande">
                   <code class="mono">{{ o.id | slice: 0 : 10 }}…</code>
                 </td>
               </tr>

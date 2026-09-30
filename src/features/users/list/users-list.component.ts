@@ -57,7 +57,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
           <tbody>
             @for (u of paged(); track u.id) {
               <tr (click)="goDetail(u.id)">
-                <td>
+                <td class="td-identity">
                   <div class="user-cell">
                     @if (avatar(u)) {
                       <img [src]="avatar(u)" class="user-avatar" [alt]="name(u)" />
@@ -72,16 +72,16 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
                     </div>
                   </div>
                 </td>
-                <td class="text-muted">{{ u.email }}</td>
-                <td class="text-muted">{{ u.phoneNumber || '—' }}</td>
-                <td>
+                <td class="text-muted" data-label="Email">{{ u.email }}</td>
+                <td class="text-muted" data-label="Téléphone">{{ u.phoneNumber || '—' }}</td>
+                <td data-label="Statut">
                   <span class="status-pill" [class.banned]="isBanned(u)">
                     <span class="status-dot"></span>
                     {{ isBanned(u) ? 'Banni' : 'Actif' }}
                   </span>
                 </td>
-                <td class="text-muted">{{ formatDate(u.createdAt) }}</td>
-                <td>
+                <td class="text-muted" data-label="Inscription">{{ formatDate(u.createdAt) }}</td>
+                <td class="td-actions">
                   <div class="actions" (click)="$event.stopPropagation()">
                     <!-- Voir le profil -->
                     <button class="btn-action btn-action--view" (click)="goDetail(u.id)" title="Voir profil">

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, HostListener } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
@@ -15,7 +15,10 @@ interface NavItem {
   standalone: true,
   imports: [CommonModule, DatePipe, RouterModule, RouterLink, RouterLinkActive, ToastContainerComponent],
   template: `
-    <div class="shell" [class.sidebar-collapsed]="collapsed()">
+    <div class="shell" [class.sidebar-collapsed]="collapsed()" [class.mobile-menu-open]="mobileMenuOpen()">
+      @if (mobileMenuOpen()) {
+        <div class="sidebar-overlay" (click)="closeMobileMenu()"></div>
+      }
       <!-- ── Sidebar ──────────────────────────────────────────────── -->
       <aside class="sidebar">
         <div class="sidebar__logo">
@@ -28,7 +31,8 @@ interface NavItem {
             <a class="nav-item"
                [routerLink]="item.route"
                routerLinkActive="nav-item--active"
-               [title]="item.label">
+               [title]="item.label"
+               (click)="closeMobileMenu()">
               <span class="material-icons nav-item__icon">{{ item.icon }}</span>
               <span class="nav-item__label">{{ item.label }}</span>
             </a>
@@ -75,8 +79,9 @@ interface NavItem {
 })
 export class AdminLayoutComponent {
   private authService: AuthService = inject(AuthService);
-  collapsed   = signal(false);
-  now         = new Date();
+  collapsed      = signal(false);
+  mobileMenuOpen = signal(false);
+  now            = new Date();
 
   currentUser = this.authService.currentUser;
 
@@ -93,7 +98,20 @@ export class AdminLayoutComponent {
     { label: 'Comptes Admin',   icon: 'admin_panel_settings', route: '/admin/admin-accounts' },
   ];
 
-  toggleSidebar(): void { this.collapsed.update(v => !v); }
+  toggleSidebar(): void {
+    if (window.innerWidth <= 768) {
+      this.mobileMenuOpen.update(v => !v);
+    } else {
+      this.collapsed.update(v => !v);
+    }
+  }
+
+  closeMobileMenu(): void { this.mobileMenuOpen.set(false); }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    if (window.innerWidth > 768) this.mobileMenuOpen.set(false);
+  }
 
   userInitials(): string {
     const user = this.authService.currentUser();
