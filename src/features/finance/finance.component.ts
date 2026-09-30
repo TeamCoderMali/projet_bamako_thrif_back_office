@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Firestore, collection, query, orderBy, getDocs, limit, where } from '@angular/fire/firestore';
+import { Firestore, collection, collectionGroup, query, orderBy, getDocs, limit, where } from '@angular/fire/firestore';
 import { PageHeaderComponent }     from '../../shared/components/page-header/page-header.component';
 import { StatCardComponent }       from '../../shared/components/stat-card/stat-card.component';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
@@ -117,8 +117,8 @@ export class FinanceComponent implements OnInit {
       const [ordersSnap, walletsSnap, txSnap] = await Promise.all([
         getDocs(query(collection(this.fs, 'order'), limit(500))),
         getDocs(query(collection(this.fs, 'wallet'), limit(500))),
-        getDocs(query(collection(this.fs, 'transactions'), orderBy('createdAt', 'desc'), limit(20))).catch(() =>
-          getDocs(query(collection(this.fs, 'transactions'), limit(20)))
+        getDocs(query(collectionGroup(this.fs, 'transactions'), orderBy('createdAt', 'desc'), limit(20))).catch(() =>
+          getDocs(query(collectionGroup(this.fs, 'transactions'), limit(20)))
         ),
       ]);
 
