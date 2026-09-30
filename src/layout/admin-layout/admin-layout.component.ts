@@ -19,8 +19,7 @@ interface NavItem {
       <!-- ── Sidebar ──────────────────────────────────────────────── -->
       <aside class="sidebar">
         <div class="sidebar__logo">
-          <img src="/logo_danaya.png" alt="DANAYA" class="logo-img" />
-          <span class="logo-text">DANAYA</span>
+          <img src="/danaya_logo_dashboard_dark_header.png" alt="DANAYA" class="logo-img" />
           <span class="logo-badge">Admin</span>
         </div>
 

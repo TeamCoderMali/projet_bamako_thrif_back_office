@@ -23,16 +23,10 @@
     border-bottom: 1px solid var(--sidebar-border);
 
     .logo-img {
-      width: 32px; height: 32px;
-      border-radius: 8px;
+      height: 34px;
+      width: auto;
       object-fit: contain;
-      background: #1d4ed8;
       flex-shrink: 0;
-    }
-    .logo-text {
-      font-size: 15px; font-weight: 800;
-      color: var(--sidebar-text);
-      letter-spacing: 0.05em;
     }
     .logo-badge.relay {
       font-size: 10px; font-weight: 700;

@@ -23,7 +23,7 @@
 
 .sidebar-collapsed .sidebar {
   width: 62px;
-  .logo-text, .logo-badge, .nav-item__label, .user-details, .nav-group-label { display: none; }
+  .logo-img, .logo-badge, .nav-item__label, .user-details, .nav-group-label { display: none; }
   .nav-item { justify-content: center; padding: 10px; }
 }
 
@@ -46,18 +46,10 @@
   }
 
   .logo-img {
-    width: 34px; height: 34px;
-    border-radius: 10px;
+    height: 36px;
+    width: auto;
     object-fit: contain;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(107,127,77,0.4);
-    padding: 3px;
-  }
-  .logo-text {
-    font-size: 17px; font-weight: 800;
-    color: #f8fafc;
-    letter-spacing: 0.04em;
   }
   .logo-badge {
     font-size: 9px; font-weight: 800;

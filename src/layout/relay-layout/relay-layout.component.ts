@@ -12,11 +12,8 @@ import { ToastContainerComponent } from '../../shared/components/confirm-dialog/
     <div class="shell relay-shell">
       <aside class="sidebar">
         <div class="sidebar__logo">
-          <img src="/logo_danaya.png" alt="DANAYA" class="logo-img" />
-          <div>
-            <span class="logo-text">DANAYA</span>
-            <span class="logo-badge relay">Relais</span>
-          </div>
+          <img src="/danaya_logo_dashboard_dark_header.png" alt="DANAYA" class="logo-img" />
+          <span class="logo-badge relay">Relais</span>
         </div>
 
         <nav class="sidebar__nav">
