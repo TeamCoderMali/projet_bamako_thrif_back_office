@@ -53,6 +53,9 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
             <span class="tag" [class.tag--banned]="isBanned()">
               {{ isBanned() ? '🚫 Banni' : '✅ Actif' }}
             </span>
+            @if (isVendeurPro()) {
+              <span class="tag">⭐ Vendeur Pro</span>
+            }
             @if (user()!.rating) {
               <span class="tag">⭐ {{ user()!.rating | number:'1.1-1' }}</span>
             }
@@ -68,6 +71,13 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
                   (click)="toggleBan()" [disabled]="updating()">
             <span class="material-icons">{{ isBanned() ? 'lock_open' : 'block' }}</span>
             {{ isBanned() ? 'Débannir' : 'Bannir' }}
+          </button>
+          <button class="btn"
+                  [class.btn--success]="!isVendeurPro()"
+                  [class.btn--ghost]="isVendeurPro()"
+                  (click)="toggleVendeurPro()" [disabled]="updating()">
+            <span class="material-icons">stars</span>
+            {{ isVendeurPro() ? 'Retirer le statut Pro' : 'Passer Vendeur Pro' }}
           </button>
         </div>
       </div>
@@ -174,6 +184,7 @@ export class UserDetailComponent implements OnInit {
   userAvatar  = () => getUserAvatar(this.user());
   userInitials = () => getUserInitials(this.user());
   isBanned    = () => this.user()?.isBanned === true || this.user()?.isActive === false;
+  isVendeurPro = () => this.user()?.isVendeurPro === true;
   soldCount   = () => this.products().filter(p => p.status === 'sold').length;
 
   async ngOnInit(): Promise<void> {
@@ -221,6 +232,19 @@ export class UserDetailComponent implements OnInit {
       await this.dataService.banUser(u.id, newState);
       this.user.update(prev => prev ? { ...prev, isBanned: newState } : null);
       this.toast.success(newState ? 'Utilisateur banni' : 'Utilisateur réactivé');
+    } catch { this.toast.error('Erreur'); }
+    finally { this.updating.set(false); }
+  }
+
+  async toggleVendeurPro(): Promise<void> {
+    const u = this.user();
+    if (!u) return;
+    const newState = !this.isVendeurPro();
+    this.updating.set(true);
+    try {
+      await this.dataService.setVendeurPro(u.id, newState);
+      this.user.update(prev => prev ? { ...prev, isVendeurPro: newState } : null);
+      this.toast.success(newState ? 'Vendeur passé Pro' : 'Statut Pro retiré');
     } catch { this.toast.error('Erreur'); }
     finally { this.updating.set(false); }
   }

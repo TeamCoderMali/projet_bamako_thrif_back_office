@@ -45,6 +45,7 @@ export interface AppUser {
   rating?: number;
   reviewCount?: number;
   isEmailVerified?: boolean;
+  isVendeurPro?: boolean;
 }
 
 // ── Helpers pour récupérer les champs quelle que soit la convention ────────────
@@ -167,16 +168,28 @@ export class DataService {
   }
 
   // ── Users ─────────────────────────────────────────────────────────────────
+  // email/phoneNumber/isEmailVerified vivent dans users/{id}/private/data
+  // (jamais exposés aux autres utilisateurs de l'app mobile — voir
+  // firestore.rules). L'admin y a accès, donc on les fusionne ici.
+  private async mergePrivateData(users: AppUser[]): Promise<AppUser[]> {
+    const privateSnaps = await Promise.all(
+      users.map(u => getDoc(doc(this.fs, 'users', u.id, 'private', 'data')).catch(() => null))
+    );
+    return users.map((u, i) => ({ ...u, ...(privateSnaps[i]?.data() ?? {}) }));
+  }
+
   async getUsersAsync(limitN = 500): Promise<AppUser[]> {
     try {
       const q = query(collection(this.fs, 'users'), orderBy('createdAt', 'desc'), limit(limitN));
       const snap = await getDocs(q);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as AppUser));
+      const users = snap.docs.map(d => ({ id: d.id, ...d.data() } as AppUser));
+      return this.mergePrivateData(users);
     } catch (err: any) {
       console.warn('[DataService] users orderBy failed, fallback:', err?.message);
       try {
         const snap2 = await getDocs(query(collection(this.fs, 'users'), limit(limitN)));
-        return snap2.docs.map(d => ({ id: d.id, ...d.data() } as AppUser));
+        const users = snap2.docs.map(d => ({ id: d.id, ...d.data() } as AppUser));
+        return this.mergePrivateData(users);
       } catch (err2: any) {
         console.error('[DataService] getUsers failed:', err2?.message);
         return [];
@@ -189,13 +202,24 @@ export class DataService {
   }
 
   getUser(id: string): Observable<AppUser | undefined> {
-    return (docData(doc(this.fs, 'users', id), { idField: 'id' }) as Observable<AppUser>).pipe(
+    return from(
+      (async () => {
+        const snap = await getDoc(doc(this.fs, 'users', id));
+        if (!snap.exists()) return undefined;
+        const [user] = await this.mergePrivateData([{ id: snap.id, ...snap.data() } as AppUser]);
+        return user;
+      })()
+    ).pipe(
       catchError(err => { console.error('[DataService] getUser error:', err?.code, err?.message); return of(undefined); })
     );
   }
 
   banUser(id: string, banned: boolean): Promise<void> {
     return updateDoc(doc(this.fs, 'users', id), { isBanned: banned, updatedAt: Timestamp.now() });
+  }
+
+  setVendeurPro(id: string, isPro: boolean): Promise<void> {
+    return updateDoc(doc(this.fs, 'users', id), { isVendeurPro: isPro, updatedAt: Timestamp.now() });
   }
 
   // ── Orders ────────────────────────────────────────────────────────────────
