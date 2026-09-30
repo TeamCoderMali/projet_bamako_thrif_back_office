@@ -49,6 +49,27 @@
   --color-warning:        #ca8a04;
   --color-danger:         #dc2626;
   --color-info:           #2563eb;
+
+  // ── Typography scale ──────────────────────────────────────────────────────
+  --text-xs:    11px;  // badges, micro-labels
+  --text-sm:    12px;  // texte secondaire, muted
+  --text-base:  13px;  // texte de base (tableaux, cartes)
+  --text-md:    14px;  // inputs, nav, corps de texte
+  --text-lg:    16px;  // sous-titres de section
+  --text-xl:    18px;  // titres de modale/dialog
+  --text-2xl:   22px;  // titres de page (h1)
+  --text-3xl:   28px;  // grands chiffres (KPI)
+  --text-4xl:   40px;  // très grands chiffres
+
+  // ── Spacing scale ─────────────────────────────────────────────────────────
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  32px;
+  --space-8:  40px;
 }
 
 // ── Dark Theme ────────────────────────────────────────────────────────────────
