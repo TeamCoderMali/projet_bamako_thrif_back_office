@@ -84,6 +84,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
           <p>Aucun article trouvé.</p>
         </div>
       } @else {
+        <div class="table-scroll">
         <table class="data-table">
           <thead>
             <tr>
@@ -147,6 +148,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
             }
           </tbody>
         </table>
+        </div>
         <div class="table-footer">
           <span>{{ filtered().length }} / {{ products().length }} articles</span>
         </div>

@@ -113,6 +113,7 @@ interface Order {
           <small>Les commandes créées via l'app mobile apparaîtront ici.</small>
         </div>
       } @else {
+        <div class="table-scroll">
         <table class="data-table">
           <thead>
             <tr>
@@ -152,6 +153,7 @@ interface Order {
             }
           </tbody>
         </table>
+        </div>
         <!-- Pagination -->
         <div class="table-footer">
           <span>{{ filtered().length }} commandes</span>

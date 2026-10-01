@@ -183,6 +183,7 @@
 // ── Main ──────────────────────────────────────────────────────────────────────
 .main {
   flex: 1;
+  min-width: 0; // empeche le contenu (ex: tableaux larges) d'etirer .main au-dela de l'espace disponible
   margin-left: 248px;
   display: flex;
   flex-direction: column;

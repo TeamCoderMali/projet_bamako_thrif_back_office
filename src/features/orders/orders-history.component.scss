@@ -49,6 +49,9 @@
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
+// Permet au tableau de defiler horizontalement plutot que d'etre tronque
+// quand la sidebar reduit l'espace disponible (ex: ~900-1150px de large).
+.table-scroll { overflow-x: auto; }
 .data-table {
   width: 100%; border-collapse: collapse;
   th {

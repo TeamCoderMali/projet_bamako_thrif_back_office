@@ -43,6 +43,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
           <p>Aucun utilisateur trouvé.</p>
         </div>
       } @else {
+        <div class="table-scroll">
         <table class="data-table">
           <thead>
             <tr>
@@ -102,6 +103,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
             }
           </tbody>
         </table>
+        </div>
         <!-- Pagination -->
         <div class="table-footer">
           <span>{{ filtered().length }} / {{ users().length }} utilisateurs</span>
