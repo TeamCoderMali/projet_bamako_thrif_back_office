@@ -24,12 +24,12 @@ interface KPI { users: number; articles: number; available: number; sold: number
       </div>
     } @else {
       <div class="kpi-grid">
-        <app-stat-card label="Utilisateurs"    [value]="kpi().users.toString()"     icon="group"           iconBg="#6B7F4D" />
-        <app-stat-card label="Articles total"  [value]="kpi().articles.toString()"  icon="checkroom"       iconBg="#2563eb" />
-        <app-stat-card label="Disponibles"     [value]="kpi().available.toString()" icon="storefront"      iconBg="#16a34a" />
+        <app-stat-card label="Utilisateurs"    [value]="kpi().users.toString()"     icon="group"           iconBg="var(--color-primary)" />
+        <app-stat-card label="Articles total"  [value]="kpi().articles.toString()"  icon="checkroom"       iconBg="var(--color-info)" />
+        <app-stat-card label="Disponibles"     [value]="kpi().available.toString()" icon="storefront"      iconBg="var(--color-success)" />
         <app-stat-card label="Vendus"          [value]="kpi().sold.toString()"      icon="shopping_cart"   iconBg="#7c3aed" />
         <app-stat-card label="Revenus"         [value]="kpi().revenue + ' FCFA'"    icon="account_balance" iconBg="#ea580c" />
-        <app-stat-card label="Litiges ouverts" [value]="kpi().disputes.toString()"  icon="gavel"           iconBg="#dc2626" />
+        <app-stat-card label="Litiges ouverts" [value]="kpi().disputes.toString()"  icon="gavel"           iconBg="var(--color-danger)" />
       </div>
     }
 

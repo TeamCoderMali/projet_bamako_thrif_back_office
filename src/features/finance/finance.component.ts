@@ -30,8 +30,8 @@ interface Transaction {
       <div class="kpi-grid">@for (i of [1,2,3,4]; track i) { <app-skeleton-loader height="100px" /> }</div>
     } @else {
       <div class="kpi-grid">
-        <app-stat-card label="Revenus totaux"       [value]="fmt(totalRevenue())"        icon="account_balance" iconBg="#6B7F4D" />
-        <app-stat-card label="Portefeuilles actifs" [value]="walletCount().toString()"   icon="account_circle"  iconBg="#2563eb" />
+        <app-stat-card label="Revenus totaux"       [value]="fmt(totalRevenue())"        icon="account_balance" iconBg="var(--color-primary)" />
+        <app-stat-card label="Portefeuilles actifs" [value]="walletCount().toString()"   icon="account_circle"  iconBg="var(--color-info)" />
         <app-stat-card label="Commandes totales"    [value]="orderCount().toString()"    icon="shopping_cart"   iconBg="#7c3aed" />
         <app-stat-card label="Valeur moy. commande" [value]="fmt(avgOrderValue())"       icon="payments"        iconBg="#ea580c" />
       </div>

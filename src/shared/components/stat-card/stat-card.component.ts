@@ -20,7 +20,7 @@ import { CommonModule } from '@angular/common';
       </div>
       <p class="stat-card__value">{{ value }}</p>
       <p class="stat-card__label">{{ label }}</p>
-      <div class="stat-card__bar" [style.background]="iconBg + '22'">
+      <div class="stat-card__bar" [style.background]="barTrackBg">
         <div class="stat-card__bar-fill" [style.background]="iconBg"></div>
       </div>
     </div>
@@ -117,4 +117,11 @@ export class StatCardComponent {
   @Input() icon   = 'analytics';
   @Input() iconBg = '#6B7F4D';
   @Input() trend: number | null = null;
+
+  // color-mix() accepte un hex litteral ou une var(--xxx) ; contrairement a la
+  // concatenation de chaine (iconBg + '22') qu'il remplace, il ne casse pas
+  // quand iconBg devient une reference de variable CSS.
+  get barTrackBg(): string {
+    return `color-mix(in srgb, ${this.iconBg} 15%, transparent)`;
+  }
 }
