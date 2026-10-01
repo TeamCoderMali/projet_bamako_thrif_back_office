@@ -27,9 +27,9 @@ interface ChartBar { label: string; value: number; pct: number; color: string; }
       <div class="kpi-grid">@for (i of [1,2,3,4,5,6]; track i) { <app-skeleton-loader height="96px" /> }</div>
     } @else {
       <div class="kpi-grid">
-        <app-stat-card label="Utilisateurs"    [value]="stats().users.toString()"        icon="group"          iconBg="#6B7F4D" />
-        <app-stat-card label="Articles total"  [value]="stats().articles.toString()"     icon="checkroom"      iconBg="#2563eb" />
-        <app-stat-card label="Disponibles"     [value]="stats().available.toString()"    icon="storefront"     iconBg="#16a34a" />
+        <app-stat-card label="Utilisateurs"    [value]="stats().users.toString()"        icon="group"          iconBg="var(--color-primary)" />
+        <app-stat-card label="Articles total"  [value]="stats().articles.toString()"     icon="checkroom"      iconBg="var(--color-info)" />
+        <app-stat-card label="Disponibles"     [value]="stats().available.toString()"    icon="storefront"     iconBg="var(--color-success)" />
         <app-stat-card label="Vendus"          [value]="stats().sold.toString()"         icon="local_offer"    iconBg="#7c3aed" />
         <app-stat-card label="Commandes"       [value]="stats().orders.toString()"       icon="receipt"        iconBg="#ea580c" />
         <app-stat-card label="Points relais"   [value]="stats().relayCenters.toString()" icon="store"          iconBg="#0891b2" />
@@ -96,7 +96,7 @@ interface ChartBar { label: string; value: number; pct: number; color: string; }
             <div class="donut-wrap">
               <svg viewBox="0 0 100 100" class="donut-svg">
                 <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-border)" stroke-width="10" />
-                <circle cx="50" cy="50" r="40" fill="none" stroke="#6B7F4D" stroke-width="10"
+                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-primary)" stroke-width="10"
                         [attr.stroke-dasharray]="conversionArc() + ' 251.2'"
                         stroke-dashoffset="62.8" stroke-linecap="round" />
               </svg>
@@ -106,9 +106,9 @@ interface ChartBar { label: string; value: number; pct: number; color: string; }
               </div>
             </div>
             <div class="donut-legend">
-              <div class="legend-item"><span class="legend-dot" style="background:#6B7F4D"></span>Vendus ({{ stats().sold }})</div>
-              <div class="legend-item"><span class="legend-dot" style="background:#16a34a"></span>Disponibles ({{ stats().available }})</div>
-              <div class="legend-item"><span class="legend-dot" style="background:#6b7280"></span>Autres ({{ stats().articles - stats().sold - stats().available }})</div>
+              <div class="legend-item"><span class="legend-dot" style="background:var(--color-primary)"></span>Vendus ({{ stats().sold }})</div>
+              <div class="legend-item"><span class="legend-dot" style="background:var(--color-success)"></span>Disponibles ({{ stats().available }})</div>
+              <div class="legend-item"><span class="legend-dot" style="background:var(--color-text-muted)"></span>Autres ({{ stats().articles - stats().sold - stats().available }})</div>
             </div>
           </div>
         }
@@ -121,14 +121,14 @@ interface ChartBar { label: string; value: number; pct: number; color: string; }
         </h3>
         <div class="summary-list">
           <div class="summary-row">
-            <span class="material-icons summary-icon" style="color:#6B7F4D">trending_up</span>
+            <span class="material-icons summary-icon" style="color:var(--color-primary)">trending_up</span>
             <div>
               <p class="summary-label">Taux de vente</p>
               <p class="summary-value">{{ conversionPct() }}% des articles publiés sont vendus</p>
             </div>
           </div>
           <div class="summary-row">
-            <span class="material-icons summary-icon" style="color:#2563eb">people</span>
+            <span class="material-icons summary-icon" style="color:var(--color-info)">people</span>
             <div>
               <p class="summary-label">Engagement</p>
               <p class="summary-value">
@@ -144,7 +144,7 @@ interface ChartBar { label: string; value: number; pct: number; color: string; }
             </div>
           </div>
           <div class="summary-row">
-            <span class="material-icons summary-icon" style="color:#dc2626">gavel</span>
+            <span class="material-icons summary-icon" style="color:var(--color-danger)">gavel</span>
             <div>
               <p class="summary-label">Litiges</p>
               <p class="summary-value">{{ stats().openDisputes }} litige(s) ouvert(s)</p>
@@ -213,9 +213,9 @@ export class ReportsComponent implements OnInit {
       const other = Math.max(0, articles - available - sold);
       const maxSt = Math.max(available, sold, other, 1);
       this.articleBars.set([
-        { label: 'Disponibles', value: available, pct: Math.round(available / maxSt * 100), color: '#16a34a' },
-        { label: 'Vendus',      value: sold,      pct: Math.round(sold      / maxSt * 100), color: '#6B7F4D' },
-        { label: 'Autres',      value: other,     pct: Math.round(other     / maxSt * 100), color: '#6b7280' },
+        { label: 'Disponibles', value: available, pct: Math.round(available / maxSt * 100), color: 'var(--color-success)' },
+        { label: 'Vendus',      value: sold,      pct: Math.round(sold      / maxSt * 100), color: 'var(--color-primary)' },
+        { label: 'Autres',      value: other,     pct: Math.round(other     / maxSt * 100), color: 'var(--color-text-muted)' },
       ]);
 
       // Barres par catégorie
@@ -226,7 +226,7 @@ export class ReportsComponent implements OnInit {
       });
       const sorted   = Object.entries(cats).sort((a, b) => b[1] - a[1]).slice(0, 6);
       const maxCat   = sorted[0]?.[1] ?? 1;
-      const colors   = ['#6B7F4D','#2563eb','#7c3aed','#ea580c','#0891b2','#16a34a'];
+      const colors   = ['var(--color-primary)','var(--color-info)','#7c3aed','#ea580c','#0891b2','var(--color-success)'];
       this.categoryBars.set(sorted.map(([label, value], i) => ({
         label, value, pct: Math.round(value / maxCat * 100), color: colors[i % colors.length],
       })));
